@@ -1,3 +1,23 @@
+"""
+MR. Analyst — Streamlit PDF RAG + CSV SQL Analyst
+-------------------------------------------------
+PDF flow:
+Upload PDF -> extract page text -> split into chunks -> create embeddings
+-> store chunks in ChromaDB -> embed question -> retrieve top-k chunks
+-> send question + retrieved context to Groq -> display answer and sources.
+
+CSV flow:
+Upload CSV -> load with Pandas -> inspect columns/rows -> ask Groq for
+a read-only DuckDB SQL query -> execute SQL -> send query result to Groq
+for a natural-language explanation -> display SQL, result and insights.
+
+Run:
+    pip install -r requirements.txt
+    streamlit run app.py
+
+Set GROQ_API_KEY in your .env file or Streamlit Community Cloud Secrets.
+"""
+
 import os
 import re
 import uuid
@@ -97,9 +117,26 @@ def get_embedding_function():
     )
 
 
-def get_groq_client(api_key: str) -> Groq:
+def get_groq_client() -> Groq:
+    """Create the Groq client using server-side secrets or local environment."""
+    api_key = ""
+
+    # Streamlit Community Cloud: App -> Settings -> Secrets
+    try:
+        api_key = st.secrets.get("GROQ_API_KEY", "").strip()
+    except Exception:
+        # Streamlit secrets may be unavailable during local development.
+        pass
+
+    # Local development fallback: .env file
     if not api_key:
-        raise ValueError("Groq API key is missing.")
+        api_key = os.getenv("GROQ_API_KEY", "").strip()
+
+    if not api_key:
+        raise ValueError(
+            "GROQ_API_KEY is not configured. Add it to Streamlit Secrets."
+        )
+
     return Groq(api_key=api_key)
 
 
@@ -517,27 +554,7 @@ with st.sidebar:
             st.success("Details submitted.")
 
     st.divider()
-    st.markdown("### Step 2 · Groq API")
-
-    api_key_input = st.text_input(
-        "Groq API key",
-        type="password",
-        placeholder="Enter your Groq API key",
-        help="Alternatively, define GROQ_API_KEY in your .env file.",
-    )
-
-    api_key = (
-        api_key_input.strip()
-        or os.getenv("GROQ_API_KEY", "").strip()
-    )
-
-    if api_key:
-        st.caption("Groq API key detected.")
-    else:
-        st.caption("Add your Groq API key to enable AI responses.")
-
-    st.divider()
-    st.markdown("### Step 3 · Upload a file")
+    st.markdown("### Step 2 · Upload a file")
 
     uploaded_file = st.file_uploader(
         "Choose one PDF or CSV file",
@@ -570,44 +587,41 @@ with st.sidebar:
         )
 
         if process_file:
-            if not api_key:
-                st.error("Enter your Groq API key first.")
-            else:
-                try:
-                    if file_extension == "pdf":
-                        with st.spinner(
-                            "Extracting PDF text, creating chunks and indexing embeddings..."
-                        ):
-                            collection_name, page_count, chunk_count = (
-                                build_pdf_rag_index(
-                                    file_bytes,
-                                    uploaded_file.name,
-                                )
+            try:
+                if file_extension == "pdf":
+                    with st.spinner(
+                        "Extracting PDF text, creating chunks and indexing embeddings..."
+                    ):
+                        collection_name, page_count, chunk_count = (
+                            build_pdf_rag_index(
+                                file_bytes,
+                                uploaded_file.name,
                             )
-
-                        st.session_state.pdf_collection_name = collection_name
-                        st.session_state.pdf_page_count = page_count
-                        st.session_state.pdf_chunk_count = chunk_count
-                        st.success(
-                            f"PDF indexed successfully: {page_count} pages, "
-                            f"{chunk_count} chunks."
                         )
 
-                    elif file_extension == "csv":
-                        with st.spinner("Reading CSV with Pandas..."):
-                            dataframe = read_csv_file(file_bytes)
+                    st.session_state.pdf_collection_name = collection_name
+                    st.session_state.pdf_page_count = page_count
+                    st.session_state.pdf_chunk_count = chunk_count
+                    st.success(
+                        f"PDF indexed successfully: {page_count} pages, "
+                        f"{chunk_count} chunks."
+                    )
 
-                        st.session_state.csv_dataframe = dataframe
-                        st.success(
-                            f"CSV loaded successfully: {len(dataframe):,} rows "
-                            f"and {len(dataframe.columns):,} columns."
-                        )
+                elif file_extension == "csv":
+                    with st.spinner("Reading CSV with Pandas..."):
+                        dataframe = read_csv_file(file_bytes)
 
-                    else:
-                        st.error("Only PDF and CSV files are supported.")
+                    st.session_state.csv_dataframe = dataframe
+                    st.success(
+                        f"CSV loaded successfully: {len(dataframe):,} rows "
+                        f"and {len(dataframe.columns):,} columns."
+                    )
 
-                except Exception as error:
-                    st.error(f"File processing failed: {error}")
+                else:
+                    st.error("Only PDF and CSV files are supported.")
+
+            except Exception as error:
+                st.error(f"File processing failed: {error}")
 
     if st.session_state.file_name:
         st.divider()
@@ -672,13 +686,11 @@ if pdf_is_ready:
     )
 
     if st.button("Get Answer", type="primary", key="pdf_get_answer"):
-        if not api_key:
-            st.error("Enter your Groq API key in the sidebar.")
-        elif not pdf_question.strip():
+        if not pdf_question.strip():
             st.warning("Please enter a question.")
         else:
             try:
-                groq_client = get_groq_client(api_key)
+                groq_client = get_groq_client()
 
                 with st.spinner(
                     "Searching ChromaDB for relevant chunks and asking Groq..."
@@ -767,13 +779,11 @@ elif csv_is_ready:
     )
 
     if st.button("Analyse Data", type="primary", key="csv_analyse"):
-        if not api_key:
-            st.error("Enter your Groq API key in the sidebar.")
-        elif not csv_question.strip():
+        if not csv_question.strip():
             st.warning("Please enter a question.")
         else:
             try:
-                groq_client = get_groq_client(api_key)
+                groq_client = get_groq_client()
 
                 with st.spinner(
                     "Generating SQL, executing the query and preparing insights..."
