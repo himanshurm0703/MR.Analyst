@@ -91,20 +91,19 @@ Developed as a hands-on project exploring Generative AI, Large Language Models, 
 ## 📸 Application Screenshots
 
 ### 1. Application Homepage
-![Homepage](./screenshots/01-homepage.png)
+![Homepage](./screenshots/homepage.png)
 
 ### 2. PDF Analysis — RAG
-![PDF Analysis](./screenshots/02-pdf-analysis.png)
+![PDF Analysis](./screenshots/pdf%20analysis.png)
 
 ### 3. PDF Question Answering
-![PDF AI Answer](./screenshots/03-pdf-ai-answer.png)
+![PDF AI Answer](./screenshots/PDF%20question%20and%20AI%20answer.png)
 
 ### 4. CSV Dataset Analysis
-![CSV Analysis](./screenshots/04-csv-analysis.png)
+![CSV Analysis](./screenshots/csv%20analysis.png)
 
 ### 5. CSV AI Analysis — SQL
-![CSV AI Analysis](./screenshots/05-csv-ai-analysis.png)
-
+![CSV AI Analysis](./screenshots/csv%20ans.png)
 ### Additional Application View
 
 ![Application Screenshot 4](screenshots/Screenshot%202026-11-04%20120453.png)
