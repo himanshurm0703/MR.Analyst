@@ -29,16 +29,25 @@ CHROMA_PATH = "./my_database"
 # ---------------------------------------------------------
 # HELPER FUNCTIONS
 # ---------------------------------------------------------
+
 def get_groq_client():
-    """Create a Groq client using the key stored in the .env file."""
+    """Create Groq client using environment variables or Streamlit secrets."""
+
     api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
+        try:
+            api_key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            api_key = None
+
+    if not api_key:
         raise ValueError(
-            "GROQ_API_KEY was not found. Add it to your .env file."
+            "GROQ_API_KEY was not found. Configure your API key."
         )
 
     return Groq(api_key=api_key)
+
 
 
 def get_collection(collection_name):
