@@ -86,3 +86,25 @@ The objective of Mr. Analyst is to make data exploration easier by allowing user
 Developed as a hands-on project exploring Generative AI, Large Language Models, Vector Databases, and Retrieval-Augmented Generation.
 
 **If you find this project interesting, feel free to explore and contribute!**
+
+---
+
+## 📸 Application Screenshots
+
+### Mr. Analyst – Application Interface
+
+![Application Screenshot 1](screenshots/Screenshot%202026-11-04%20120108.png)
+
+### CSV Data Processing
+
+![Application Screenshot 2](screenshots/Screenshot%202026-11-04%20120256.png)
+
+### AI-Powered Analysis
+
+![Application Screenshot 3](screenshots/Screenshot%202026-11-04%20120342.png)
+
+### Additional Application View
+
+![Application Screenshot 4](screenshots/Screenshot%202026-11-04%20120453.png)
+
+---
