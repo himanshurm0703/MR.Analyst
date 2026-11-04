@@ -1,7 +1,9 @@
-streamlit
-groq
-chromadb
+streamlit==1.65.0
 pandas
+chromadb
+duckdb
 python-dotenv
-langchain-text-splitters
+groq
 pypdf
+langchain-text-splitters
+sentence-transformers
