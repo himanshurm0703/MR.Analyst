@@ -102,10 +102,8 @@ Developed as a hands-on project exploring Generative AI, Large Language Models, 
 ### 4. CSV Dataset Analysis
 ![CSV Analysis](./screenshots/csv%20analysis.png)
 
-### 5. CSV AI Analysis — SQL
+### 5. CSV AI Analysis 
 ![CSV AI Analysis](./screenshots/csv%20ans.png)
-### Additional Application View
 
-![Application Screenshot 4](screenshots/Screenshot%202026-11-04%20120453.png)
 
 ---
